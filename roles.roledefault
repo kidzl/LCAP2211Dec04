@@ -1,5 +1,13 @@
 [
 	{
+		"Name": "any",
+		"Description": "any",
+		"defaultPrivilege": {
+			"IsSimple": true,
+			"SimplePrivilege": 2
+		}
+	},
+	{
 		"Name": "authenticated-user",
 		"Description": "authenticated-user",
 		"defaultPrivilege": {
@@ -16,8 +24,8 @@
 		}
 	},
 	{
-		"Name": "any",
-		"Description": "any",
+		"Name": "BookRoleCheck",
+		"Description": "",
 		"defaultPrivilege": {
 			"IsSimple": true,
 			"SimplePrivilege": 2

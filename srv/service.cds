@@ -11,15 +11,28 @@ service LCAP2211ECCCICDService
             *
         };
 
+    annotate SrvAuthors with @restrict :
+    [
+        { grant : [ 'READ' ], to : [ 'BookRoleCheck' ] }
+    ];
+
     @odata.draft.enabled
     entity SrvBooks as
         projection on my.Books
         {
             *
         };
+
+    annotate SrvBooks with @restrict :
+    [
+        { grant : [ 'READ', 'CREATE' ], to : [ 'BookRoleCheck' ] },
+        { grant : [ 'UPDATE' ], to : [ 'BookRoleCheck' ], where : 'price > 50' },
+        { grant : [ 'DELETE' ], to : [ 'BookRoleCheck' ], where : 'stock > 5 and price > 30' }
+    ];
 }
 
 annotate LCAP2211ECCCICDService with @requires :
 [
-    'authenticated-user'
+    'authenticated-user',
+    'BookRoleCheck'
 ];
