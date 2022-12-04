@@ -1,0 +1,27 @@
+{
+  "welcomeFile": "/index.html",
+  "authenticationMethod": "route",
+  "logout": {
+    "logoutEndpoint": "/do/logout"
+  },
+  "routes": [
+    {
+      "source": "^/service/LCAP2211ECCCICD/(.*)$",
+      "target": "/service/LCAP2211ECCCICD/$1",
+      "destination": "LCAP2211ECCCICD-app-srv",
+      "authenticationType": "xsuaa"
+    },
+    {
+      "source": "^(.*)$",
+      "target": "$1",
+      "service": "html5-apps-repo-rt",
+      "authenticationType": "xsuaa"
+    }
+  ],
+  "responseHeaders": [
+    {
+      "name": "Content-Security-Policy",
+      "value": "frame-ancestors 'self' *.hana.ondemand.com *applicationstudio.cloud.sap"
+    }
+  ]
+}

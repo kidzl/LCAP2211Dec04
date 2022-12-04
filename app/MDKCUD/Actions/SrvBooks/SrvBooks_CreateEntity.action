@@ -1,0 +1,20 @@
+{
+    "CreateLinks": [],
+    "OnFailure": "/MDKCUD/Actions/CreateEntityFailureMessage.action",
+    "OnSuccess": "/MDKCUD/Actions/CreateEntitySuccessMessage.action",
+    "Properties": {
+        "title": "#Control:title/#Value",
+        "stock": "#Control:stock/#Value",
+        "price": "#Control:price/#Value",
+        "currency": "#Control:currency/#Value",
+        "criticality": "#Control:criticality/#Value"
+    },
+    "Target": {
+        "EntitySet": "SrvBooks",
+        "Service": "/MDKCUD/Services/service1.service"
+    },
+    "ActionResult": {
+        "_Name": "create"
+    },
+    "_Type": "Action.Type.ODataService.CreateEntity"
+}

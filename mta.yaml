@@ -1,0 +1,241 @@
+_schema-version: '3.1'
+ID: LCAP2211ECCCICD
+version: 1.0.0
+description: A simple CAP project.
+parameters:
+  deploy_mode: html5-repo
+  enable-parallel-deployments: true
+build-parameters:
+  before-all:
+    - builder: custom
+      commands:
+        - rm -rf build/ui-deployer
+        - mkdir -p build/ui-deployer
+        - rm -rf build/dist
+        - mkdir -p build/dist
+    - builder: custom
+      commands:
+        - npm install --production
+        - >-
+          bash -c "cds -v | grep 'cds-dk' || npm i --production --no-save
+          @sap/cds-dk @sap/mdk-tools"
+        - bash -c "export PATH=$PATH:$(pwd)/node_modules/.bin"
+        - cds build --production
+modules:
+  - name: LCAP2211ECCCICD-LCAP2211ECCCICD.FioriCUD
+    type: html5
+    path: app/LCAP2211ECCCICD.FioriCUD
+    build-parameters:
+      builder: custom
+      commands:
+        - rm -rf dist-zip dist
+        - >-
+          npx -p @ui5/cli ui5 build --dest dist
+          --include-task=generateManifestBundle
+          --include-task=generateCachebusterInfo
+        - mkdir dist-zip
+        - >-
+          bash -c "cd dist && npx bestzip
+          ../dist-zip/LCAP2211ECCCICDFioriCUD.zip *"
+      _artifactName: LCAP2211ECCCICDFioriCUD.zip
+      supported-platforms: []
+      build-result: dist-zip
+  - name: LCAP2211ECCCICD-LCAP2211ECCCICD.FioriListApp
+    type: html5
+    path: app/LCAP2211ECCCICD.FioriListApp
+    build-parameters:
+      builder: custom
+      commands:
+        - rm -rf dist-zip dist
+        - >-
+          npx -p @ui5/cli ui5 build --dest dist
+          --include-task=generateManifestBundle
+          --include-task=generateCachebusterInfo
+        - mkdir dist-zip
+        - >-
+          bash -c "cd dist && npx bestzip
+          ../dist-zip/LCAP2211ECCCICDFioriListApp.zip *"
+      _artifactName: LCAP2211ECCCICDFioriListApp.zip
+      supported-platforms: []
+      build-result: dist-zip
+  - name: LCAP2211ECCCICD-MDKCUD
+    type: html5
+    path: app/MDKCUD
+    build-parameters:
+      builder: custom
+      commands:
+        - npx -p @sap/mdk-tools mdk build --target module --ui5 --forceUpdate
+        - bash -c "cd Web/MDKModule && rm -rf .npmrc && npm install"
+        - bash -c "cd Web/MDKModule && npm run build"
+        - >-
+          bash -c "mv Web/MDKModule/MDKModule-content.zip
+          ../../build/dist/MDKCUD.zip"
+        - rm -rf Web/MDKModule/dist
+      _artifactName: MDKCUD.zip
+      supported-platforms: []
+      build-result: ../../build/dist
+  - name: LCAP2211ECCCICD-db-deployer
+    type: hdb
+    path: gen/db
+    parameters:
+      buildpack: nodejs_buildpack
+    build-parameters:
+      builder: npm
+      ignore:
+        - node_modules
+        - package-lock.json
+    requires:
+      - name: LCAP2211ECCCICD-service-uaa
+      - name: LCAP2211ECCCICD-service-db
+  - name: LCAP2211ECCCICD-srv
+    type: nodejs
+    path: gen/srv
+    parameters:
+      memory: 256MB
+    provides:
+      - name: srv-api
+        properties:
+          srv-url: ${default-url}
+    build-parameters:
+      builder: npm
+      ignore:
+        - node_modules
+        - package-lock.json
+    requires:
+      - name: LCAP2211ECCCICD-service-uaa
+      - name: LCAP2211ECCCICD-service-db
+      - name: LCAP2211ECCCICD-service-destination
+      - name: LCAP2211ECCCICD-service-metadata
+      - name: LCAP2211ECCCICD-service-connectivity
+      - name: LCAP2211ECCCICD-service-logs
+  - name: LCAP2211ECCCICD-aux-destinations
+    type: com.sap.application.content
+    parameters:
+      content:
+        subaccount:
+          existing_destinations_policy: update
+          destinations:
+            - Authentication: OAuth2UserTokenExchange
+              Name: LCAP2211ECCCICD-service-uaa
+              ServiceInstanceName: LCAP2211ECCCICD-uaa
+              ServiceKeyName: LCAP2211ECCCICD-uaa-key
+              sap.cloud.service: lcap.LCAP2211ECCCICD
+            - Authentication: OAuth2UserTokenExchange
+              Name: LCAP2211ECCCICD-app-srv
+              TokenServiceInstanceName: LCAP2211ECCCICD-uaa
+              TokenServiceKeyName: LCAP2211ECCCICD-uaa-key
+              URL: ~{srv-api/srv-url}
+              sap.cloud.service: lcap.LCAP2211ECCCICD
+            - Name: LCAP2211ECCCICD-service-html5-apps-repo-host
+              ServiceInstanceName: LCAP2211ECCCICD-html5-apps-repo-host
+              ServiceKeyName: LCAP2211ECCCICD-html5-apps-repo-host-key
+              sap.cloud.service: lcap.LCAP2211ECCCICD
+    build-parameters:
+      no-source: true
+    requires:
+      - name: LCAP2211ECCCICD-service-uaa
+        parameters:
+          service-key:
+            name: LCAP2211ECCCICD-uaa-key
+      - name: srv-api
+      - name: LCAP2211ECCCICD-service-html5-apps-repo-host
+        parameters:
+          service-key:
+            name: LCAP2211ECCCICD-html5-apps-repo-host-key
+      - name: LCAP2211ECCCICD-service-destination
+        parameters:
+          content-target: true
+  - name: LCAP2211ECCCICD-launchpad
+    type: html5
+    path: build/launchpad
+    build-parameters:
+      builder: custom
+      commands:
+        - npm install
+        - >-
+          npx -p @ui5/cli ui5 build --dest dist
+          --include-task=generateManifestBundle
+          --include-task=generateCachebusterInfo
+        - bash -c "cd dist && npx bestzip ../../../build/dist/launchpad.zip *"
+        - rm -rf dist
+      _artifactName: launchpad.zip
+      supported-platforms: []
+      build-result: ../../build/dist
+  - name: LCAP2211ECCCICD-aux-ui-deployer
+    type: com.sap.application.content
+    path: build/ui-deployer
+    build-parameters:
+      build-result: resources
+      requires:
+        - name: LCAP2211ECCCICD-LCAP2211ECCCICD.FioriCUD
+          artifacts:
+            - LCAP2211ECCCICDFioriCUD.zip
+          target-path: resources
+        - name: LCAP2211ECCCICD-LCAP2211ECCCICD.FioriListApp
+          artifacts:
+            - LCAP2211ECCCICDFioriListApp.zip
+          target-path: resources
+        - name: LCAP2211ECCCICD-MDKCUD
+          artifacts:
+            - MDKCUD.zip
+          target-path: resources
+        - name: LCAP2211ECCCICD-launchpad
+          artifacts:
+            - launchpad.zip
+          target-path: resources
+    requires:
+      - name: LCAP2211ECCCICD-service-html5-apps-repo-host
+        parameters:
+          content-target: true
+resources:
+  - type: org.cloudfoundry.managed-service
+    name: LCAP2211ECCCICD-service-uaa
+    parameters:
+      service: xsuaa
+      service-plan: application
+      service-name: LCAP2211ECCCICD-uaa
+      path: xs-security.json
+      config:
+        xsappname: LCAP2211ECCCICD-${space}
+        role-collections: []
+  - type: org.cloudfoundry.managed-service
+    name: LCAP2211ECCCICD-service-db
+    parameters:
+      service: hana
+      service-plan: hdi-shared
+      service-name: LCAP2211ECCCICD-db
+  - type: org.cloudfoundry.managed-service
+    name: LCAP2211ECCCICD-service-destination
+    parameters:
+      service: destination
+      service-plan: lite
+      service-name: LCAP2211ECCCICD-destination
+      config:
+        HTML5Runtime_enabled: true
+        version: 1.0.0
+  - type: org.cloudfoundry.user-provided-service
+    name: LCAP2211ECCCICD-service-metadata
+    parameters:
+      service: metadata
+      service-plan: standard
+      service-name: LCAP2211ECCCICD-metadata
+      config:
+        default-domain: ${default-domain}
+  - type: org.cloudfoundry.managed-service
+    name: LCAP2211ECCCICD-service-connectivity
+    parameters:
+      service: connectivity
+      service-plan: lite
+      service-name: LCAP2211ECCCICD-connectivity
+  - type: org.cloudfoundry.managed-service
+    name: LCAP2211ECCCICD-service-logs
+    parameters:
+      service: application-logs
+      service-plan: lite
+      service-name: LCAP2211ECCCICD-logs
+  - type: org.cloudfoundry.managed-service
+    name: LCAP2211ECCCICD-service-html5-apps-repo-host
+    parameters:
+      service: html5-apps-repo
+      service-plan: app-host
+      service-name: LCAP2211ECCCICD-html5-apps-repo-host

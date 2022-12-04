@@ -1,0 +1,66 @@
+{
+	"Credential": "cf",
+	"CF": {
+		"Target": "",
+		"Organization": "",
+		"Space": "",
+		"Deploy": {
+			"Description": "My SAP application",
+			"WebClient": {
+				"Runtime": "preview",
+				"URL": ""
+			},
+			"Destination": [
+				{
+					"CF": "LCAP2211ECCCICD-app-srv",
+					"MDK": "../service/LCAP2211ECCCICD/",
+					"URL": ""
+				}
+			]
+		}
+	},
+	"MobileService": {
+		"Type": "standard",
+		"AdminAPI": "",
+		"AppId": "lcap.LCAP2211ECCCICD.MDKCUD",
+		"Destination": []
+	},
+	"Onboarding": {
+		"Schema": "sapmobilesvcs",
+		"TimeZone": "UTC",
+		"URL": ""
+	},
+	"LCAP": {
+		"FullName": "LCAP2211ECCCICD_MDKCUD",
+		"Service": [
+			{
+				"mdk": "MDKCUD/Services/service1.service",
+				"cap": {
+					"name": "LCAP2211ECCCICDService",
+					"sourcePath": "srv/service.cds",
+					"path": "/service/LCAP2211ECCCICD/",
+					"entryPath": "/service/LCAP2211ECCCICD",
+					"destination": "LCAP2211ECCCICD-app-srv",
+					"value": "0"
+				},
+				"links": [
+					{
+						"entity": "LCAP2211ECCCICDService.SrvBooks",
+						"files": [
+							"MDKCUD/Pages/SrvBooks/SrvBooks_Detail.page",
+							"MDKCUD/Pages/SrvBooks/SrvBooks_Edit.page",
+							"MDKCUD/Pages/SrvBooks/SrvBooks_List.page",
+							"MDKCUD/Actions/SrvBooks/SrvBooks_CreateEntity.action",
+							"MDKCUD/Actions/SrvBooks/SrvBooks_DeleteEntity.action",
+							"MDKCUD/Actions/SrvBooks/SrvBooks_UpdateEntity.action"
+						]
+					}
+				]
+			}
+		],
+		"sourceTemplate": {
+			"id": "html5moduletemplates.basicSAPUI5ApplicationProjectModule",
+			"version": "1.40.12"
+		}
+	}
+}

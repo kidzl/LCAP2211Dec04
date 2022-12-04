@@ -1,0 +1,9 @@
+{
+    "DestinationName": "../service/LCAP2211ECCCICD/",
+    "OfflineEnabled": false,
+    "LanguageURLParam": "",
+    "OnlineOptions": {},
+    "PathSuffix": "",
+    "SourceType": "Cloud",
+    "ServiceUrl":""
+}
